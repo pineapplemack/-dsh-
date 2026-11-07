@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="MACKOWN ORBITAL — an interactive 3D study in gravity. Explore MACKOWN-9, its rings and three moons.">
+<meta name="theme-color" content="#050607">
+<title>MACKOWN ORBITAL — A Study in Gravity</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23050607'/%3E%3Ccircle cx='32' cy='32' r='17' fill='%23e4a45e'/%3E%3Cellipse cx='32' cy='32' rx='28' ry='8' fill='none' stroke='%23efe7d6' stroke-width='1.5' transform='rotate(-18 32 32)'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/fonts.css">
+<link rel="stylesheet" href="orbit.css">
+</head>
+<body>
+<a class="skip" href="#data">Skip to telemetry</a>
+<canvas id="space" aria-label="Interactive 3D celestial scene. Drag to orbit, scroll to zoom, and click a body to focus."></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"><span id="cursorText">Focus</span></div>
+
+<div class="labels" id="labels">
+  <button class="body-label" data-focus="planet" data-label="planet" data-ox="0" data-oy="-18" aria-label="Focus MACKOWN-9">
+    <i></i><span class="bl-name">MACKOWN-9</span><span class="bl-meta">GAS GIANT</span>
+  </button>
+  <button class="body-label" data-focus="luma" data-label="luma" data-ox="20" data-oy="-11" aria-label="Focus Luma">
+    <i></i><span class="bl-name">LUMA</span><span class="bl-meta">MOON / 01</span>
+  </button>
+  <button class="body-label" data-focus="vessel" data-label="vessel" data-ox="20" data-oy="-11" aria-label="Focus Vessel">
+    <i></i><span class="bl-name">VESSEL</span><span class="bl-meta">MOON / 02</span>
+  </button>
+  <button class="body-label" data-focus="echo" data-label="echo" data-ox="20" data-oy="-11" aria-label="Focus Echo">
+    <i></i><span class="bl-name">ECHO</span><span class="bl-meta">MOON / 03</span>
+  </button>
+</div>
+
+<header class="top hud">
+  <a class="brand" href="../index.html" aria-label="Return to MACKOWN index">
+    <span class="brand-name">MACKOWN</span><span class="brand-slash">/</span><span class="brand-world">ORBITAL</span>
+  </a>
+  <div class="top-mid">
+    <span class="live"><i></i>Live telemetry</span>
+    <span id="ra">RA 18h 42m 09s</span>
+    <span id="dec">DEC −23° 26′</span>
+  </div>
+  <div class="top-right">
+    <button class="sound" id="soundToggle" aria-pressed="false"><span class="sound-dot"></span><span id="soundLabel">Sound off</span></button>
+    <a class="index-link" href="../index.html">Index <span>↗</span></a>
+  </div>
+</header>
+
+<main class="hud">
+  <section class="hero-copy">
+    <div class="eyebrow"><span>Orbital observatory</span><span>Object 09</span></div>
+    <h1><span>A body</span><span>in perfect</span><span><em>falling.</em></span></h1>
+    <p>Three moons, one ring of dust, and a gas giant that has been falling toward nothing for eleven billion years. Drag the dark to look around.</p>
+    <div class="hero-meta">
+      <span>3D study / real-time</span>
+      <span>MACKOWN-9 system</span>
+      <span>2026</span>
+    </div>
+  </section>
+
+  <aside class="data" id="data" aria-live="polite">
+    <div class="data-head">
+      <span id="dataObject">Object 01 / planetary body</span>
+      <span class="tracking"><i></i>Tracking</span>
+    </div>
+    <h2 id="dataName">MACKOWN-9</h2>
+    <p class="data-type" id="dataType">Gas giant / ringed</p>
+    <p class="data-desc" id="dataDesc">An amber world in a slow, permanent fall. Its equator carries a ring of ice and iron; three moons keep its weather.</p>
+    <div class="data-stats">
+      <div><span>Radius</span><b id="dataRadius">58,211 km</b></div>
+      <div><span>Distance</span><b id="dataDistance">4.11 AU</b></div>
+      <div><span>Orbital period</span><b id="dataPeriod">11.86 yr</b></div>
+      <div><span>Signal</span><b id="dataSignal">0.82</b></div>
+    </div>
+    <div class="data-bars">
+      <div class="bar-row"><span>Atmosphere</span><span class="bar"><i id="barAtmo" style="width:94%"></i></span><b id="barAtmoVal">0.94</b></div>
+      <div class="bar-row"><span>Magnetic field</span><span class="bar"><i id="barMag" style="width:77%"></i></span><b id="barMagVal">0.77</b></div>
+      <div class="bar-row"><span>Signal coherence</span><span class="bar"><i id="barSignal" style="width:82%"></i></span><b id="barSignalVal">0.82</b></div>
+    </div>
+    <button class="scan-btn" data-scan>
+      <span id="scanLabel">Run spectral scan</span>
+      <i class="scan-arrow">→</i>
+    </button>
+    <div class="scan-progress" id="scanProgress"><i></i></div>
+  </aside>
+
+  <div class="event-log">
+    <div class="log-head"><span>Event log</span><span>UTC +08</span></div>
+    <ul id="eventLog">
+      <li><time>00:00:00</time><span>observatory online / all systems nominal</span></li>
+      <li><time>00:00:01</time><span>gravitational field locked</span></li>
+      <li><time>00:00:02</time><span>target acquired / MACKOWN-9</span></li>
+    </ul>
+  </div>
+
+  <div class="hint">
+    <span><i class="hint-icon drag"></i>Drag to orbit</span>
+    <span><i class="hint-icon zoom"></i>Scroll to zoom</span>
+    <span><i class="hint-icon select"></i>Select a body</span>
+  </div>
+  <div class="reticle" aria-hidden="true"><span></span></div>
+  <div class="vertical-note" aria-hidden="true">3D / real-time / gravitational survey</div>
+</main>
+
+<footer class="controls hud">
+  <div class="targets" role="group" aria-label="Focus a celestial body">
+    <button class="target active" data-focus="planet"><b>01</b><span>MACKOWN-9</span><i></i></button>
+    <button class="target" data-focus="luma"><b>02</b><span>Luma</span><i></i></button>
+    <button class="target" data-focus="vessel"><b>03</b><span>Vessel</span><i></i></button>
+    <button class="target" data-focus="echo"><b>04</b><span>Echo</span><i></i></button>
+  </div>
+  <div class="control-tools">
+    <button class="tool-btn" data-scan><span>Scan</span><b>⌁</b></button>
+    <label class="speed">
+      <span>Orbit speed</span>
+      <input type="range" id="speed" min="0" max="3" step=".1" value="1" aria-label="Orbit speed">
+      <b id="speedOut">1.0×</b>
+    </label>
+    <button class="tool-btn" id="resetView"><span>Reset</span><b>↺</b></button>
+  </div>
+  <div class="bottom-meta">
+    <span>Sim <b id="simClock">00:00:00</b></span>
+    <span>Zoom <b id="zoomOut">15.5</b></span>
+  </div>
+</footer>
+
+<div class="boot" id="boot">
+  <div class="boot-top">
+    <span>MACKOWN / ORBITAL</span>
+    <span>3D observatory / 2026</span>
+  </div>
+  <div class="boot-center">
+    <div class="boot-kicker">Celestial object 09 / a study in gravity</div>
+    <div class="boot-mark">ORBITAL</div>
+    <div class="boot-sub"><em>Some things are held together by falling.</em><span>Three moons · one ring · one long silence</span></div>
+  </div>
+  <div class="boot-bottom">
+    <div class="boot-line"><i id="bootBar"></i></div>
+    <div class="boot-meta"><span id="bootStatus">Initializing star field</span><span id="bootPct">00%</span></div>
+  </div>
+  <button class="skip-boot" id="skipBoot">Skip intro <span>↗</span></button>
+</div>
+
+<div class="fallback" id="fallback">
+  <div class="fallback-orb"><i></i></div>
+  <p>This observatory needs WebGL. The data is still here, but the dark is not.</p>
+</div>
+
+<noscript><div class="noscript">This observatory needs JavaScript to render its 3D sky. Please enable it and refresh.</div></noscript>
+
+<script src="../assets/vendor/three.min.js"></script>
+<script src="orbit.js"></script>
+</body>
+</html>
